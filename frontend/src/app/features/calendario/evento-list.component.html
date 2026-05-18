@@ -1,0 +1,113 @@
+<!-- Calendario de eventos escolares -->
+<div class="page">
+
+  <div class="list-header">
+    <div class="list-header__left">
+      <h1>Calendario</h1>
+      <p>Eventos del calendario escolar</p>
+    </div>
+    <button type="button" (click)="toggleFormulario()"
+      [class]="mostrarFormulario() ? 'btn btn--outline' : 'btn btn--primary'">
+      @if (mostrarFormulario()) { Cancelar } @else { Nuevo evento }
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="error-bar" role="alert">{{ error() }}</div>
+  }
+
+  @if (mostrarFormulario()) {
+    <div class="form-card">
+      <h2 class="form-card__title">Crear evento</h2>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-grid">
+
+          <div class="field form-full">
+            <input id="titulo" type="text" formControlName="titulo"
+              placeholder="Titulo" class="field__input"
+              [class.is-invalid]="form.controls.titulo.invalid && form.controls.titulo.touched">
+            <label for="titulo" class="field__label">Titulo <span aria-hidden="true">*</span></label>
+          </div>
+
+          <div class="field">
+            <input id="fechaInicio" type="datetime-local" formControlName="fechaInicio"
+              placeholder="Fecha inicio" class="field__input"
+              [class.is-invalid]="form.controls.fechaInicio.invalid && form.controls.fechaInicio.touched"
+              style="padding-top:1.25rem;">
+            <label for="fechaInicio" class="field__label" style="top:0.375rem;font-size:0.7rem;font-weight:600;color:var(--petrol-500);">Fecha inicio *</label>
+          </div>
+
+          <div class="field">
+            <input id="fechaFin" type="datetime-local" formControlName="fechaFin"
+              placeholder="Fecha fin" class="field__input"
+              [class.is-invalid]="form.controls.fechaFin.invalid && form.controls.fechaFin.touched"
+              style="padding-top:1.25rem;">
+            <label for="fechaFin" class="field__label" style="top:0.375rem;font-size:0.7rem;font-weight:600;color:var(--petrol-500);">Fecha fin *</label>
+          </div>
+
+          <div class="field">
+            <select id="tipo" formControlName="tipo" class="field__select">
+              @for (t of tipos; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+            <label for="tipo" class="field__label" style="top:0.375rem;font-size:0.7rem;font-weight:600;">Tipo</label>
+          </div>
+
+          <div class="field">
+            <input id="descripcion" type="text" formControlName="descripcion"
+              placeholder="Descripcion" class="field__input">
+            <label for="descripcion" class="field__label">Descripcion (opcional)</label>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" (click)="toggleFormulario()" class="btn btn--ghost">Cancelar</button>
+            <button type="submit" [disabled]="guardando()" class="btn btn--primary">
+              @if (guardando()) { Creando... } @else { Crear evento }
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (cargando()) {
+    <div class="eventos-list" aria-busy="true">
+      @for (n of [1,2,3]; track n) {
+        <div class="skeleton skeleton--card" style="height:80px;"></div>
+      }
+    </div>
+
+  } @else if (eventos().length === 0) {
+    <app-empty-state titulo="Sin eventos" descripcion="No hay eventos en el calendario. Crea el primero." />
+
+  } @else {
+    <div class="eventos-list">
+      @for (ev of eventos(); track ev.id) {
+        <div class="evento-card">
+          <div class="evento-card__body">
+            <div class="evento-card__top">
+              <span [class]="claseBadgeTipo(ev.tipo)">{{ ev.tipo }}</span>
+              <h3 class="evento-card__titulo">{{ ev.titulo }}</h3>
+            </div>
+            @if (ev.descripcion) {
+              <p class="evento-card__desc">{{ ev.descripcion }}</p>
+            }
+            <div class="evento-card__fechas">
+              <span>Inicio: {{ ev.fechaInicio }}</span>
+              <span>Fin: {{ ev.fechaFin }}</span>
+            </div>
+          </div>
+          <button type="button"
+            (click)="eliminar(ev.id, ev.titulo)"
+            class="btn-icon-delete"
+            [attr.aria-label]="'Eliminar evento: ' + ev.titulo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

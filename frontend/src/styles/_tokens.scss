@@ -1,0 +1,96 @@
+// ============================================================
+// SmartBook — Design Tokens
+// Importar con: @use 'tokens' as t;  (desde src/styles/)
+// O con ruta relativa: @use '../../styles/tokens' as t;
+// ============================================================
+
+// --- Paleta primaria: petróleo académico ---
+$petrol-900: #0d3b4a;
+$petrol-700: #1b4d5a;
+$petrol-500: #2a6b7d;
+$petrol-300: #6da4b3;
+$petrol-100: #d4e6eb;
+
+// --- Acento cálido: coral terracota ---
+$coral-600: #c85a3e;
+$coral-500: #e07856;
+$coral-300: #f0a890;
+
+// --- Highlights académicos ---
+$mustard-500: #d9a441;
+$mustard-300: #f0d480;
+
+// --- Estados ---
+$sage-500: #6b9272;
+$brick-500: #b03a2e;
+$sand-400: #c9b787;
+
+// --- Neutros cálidos ---
+$cream-50: #faf6f0;
+$cream-100: #f3ece0;
+$parchment: #ede4d3;
+$ink-900: #2b2722;
+$ink-700: #4a4339;
+$ink-500: #7a6f60;
+$ink-300: #b8ad9a;
+
+// --- Tipografías ---
+$font-heading: 'Fraunces', Georgia, serif;
+$font-body: 'Inter', system-ui, sans-serif;
+$font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+// --- Radios ---
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+
+// --- Sombras sutiles ---
+$shadow-card: 0 1px 3px rgba($ink-900, 0.04), 0 4px 12px rgba($ink-900, 0.03);
+$shadow-card-hover: 0 2px 6px rgba($ink-900, 0.06), 0 8px 20px rgba($ink-900, 0.06);
+$shadow-modal: 0 4px 16px rgba($ink-900, 0.10), 0 16px 48px rgba($ink-900, 0.08);
+
+// --- Transiciones ---
+$transition-fast: 100ms ease;
+$transition-base: 200ms ease;
+$transition-slow: 300ms ease;
+$ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+$ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+// --- CSS Custom Properties (para uso en templates) ---
+:root {
+  // Colores como custom props (para componentes que usen CSS puro)
+  --petrol-900: #{$petrol-900};
+  --petrol-700: #{$petrol-700};
+  --petrol-500: #{$petrol-500};
+  --petrol-300: #{$petrol-300};
+  --petrol-100: #{$petrol-100};
+  --coral-600: #{$coral-600};
+  --coral-500: #{$coral-500};
+  --coral-300: #{$coral-300};
+  --mustard-500: #{$mustard-500};
+  --mustard-300: #{$mustard-300};
+  --sage-500: #{$sage-500};
+  --brick-500: #{$brick-500};
+  --sand-400: #{$sand-400};
+  --cream-50: #{$cream-50};
+  --cream-100: #{$cream-100};
+  --parchment: #{$parchment};
+  --ink-900: #{$ink-900};
+  --ink-700: #{$ink-700};
+  --ink-500: #{$ink-500};
+  --ink-300: #{$ink-300};
+
+  // Tipografía fluida
+  --fs-h1: clamp(2rem, 4vw + 1rem, 3.5rem);
+  --fs-h2: clamp(1.5rem, 2.5vw + 0.8rem, 2.25rem);
+  --fs-h3: clamp(1.25rem, 1.5vw + 0.7rem, 1.5rem);
+  --fs-body: clamp(0.95rem, 0.5vw + 0.85rem, 1.05rem);
+  --fs-small: 0.875rem;
+
+  // Espaciado fluido
+  --page-padding: clamp(1rem, 3vw, 2rem);
+  --content-max: 1400px;
+  --sidebar-open: 240px;
+  --sidebar-closed: 64px;
+  --topbar-h: 64px;
+}

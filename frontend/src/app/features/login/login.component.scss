@@ -1,0 +1,279 @@
+@use '../../../styles/tokens' as t;
+
+// ============================================================
+// Login — Split layout
+// ============================================================
+
+.login-page {
+  display: grid;
+  min-height: 100vh;
+  background: t.$cream-50;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 40% 60%;
+  }
+}
+
+// ===== Panel decorativo izquierdo =====
+
+.login-visual {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  background: t.$petrol-700;
+
+  @media (min-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+  }
+
+  &__pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: t.$cream-50;
+  }
+
+  &__logo-mark {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1.5rem;
+    background: rgba(t.$cream-50, 0.12);
+    border-radius: t.$radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(t.$cream-50, 0.2);
+  }
+
+  &__brand {
+    font-family: t.$font-heading;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: t.$cream-50;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  &__tagline {
+    font-size: 1rem;
+    color: rgba(t.$cream-50, 0.65);
+    line-height: 1.5;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+
+  &__footer {
+    position: absolute;
+    bottom: 1.5rem;
+    font-size: 0.75rem;
+    color: rgba(t.$cream-50, 0.4);
+    letter-spacing: 0.04em;
+    text-align: center;
+    padding: 0 2rem;
+  }
+}
+
+// ===== Panel del formulario derecho =====
+
+.login-form-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem var(--page-padding);
+
+  // En móvil, se muestra solo la parte del formulario
+  @media (max-width: 767px) {
+    min-height: 100vh;
+  }
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+
+  &.shake {
+    animation: shake 400ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+}
+
+.login-header {
+  margin-bottom: 2.5rem;
+
+  // En móvil se muestra el logo aquí (el visual está oculto)
+  @media (max-width: 767px) {
+    text-align: center;
+  }
+
+  &__logo-mobile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+
+    @media (min-width: 768px) {
+      display: none;
+    }
+
+    @media (max-width: 767px) {
+      justify-content: center;
+    }
+  }
+
+  &__mark {
+    width: 40px;
+    height: 40px;
+    background: t.$petrol-700;
+    border-radius: t.$radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__brand-text {
+    font-family: t.$font-heading;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: t.$petrol-900;
+  }
+
+  h1 {
+    font-family: t.$font-heading;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: t.$ink-900;
+    line-height: 1.15;
+    margin-bottom: 0.375rem;
+  }
+
+  p {
+    font-size: var(--fs-small);
+    color: t.$ink-500;
+  }
+}
+
+// ===== Formulario =====
+
+.login-form {
+  .field {
+    margin-bottom: 1.75rem;
+  }
+}
+
+// Error message
+.login-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: rgba(t.$brick-500, 0.06);
+  border: 1px solid rgba(t.$brick-500, 0.2);
+  border-radius: t.$radius-md;
+  margin-bottom: 1.5rem;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: t.$brick-500;
+    margin-top: 1px;
+  }
+
+  &__text {
+    font-size: var(--fs-small);
+    color: t.$brick-500;
+    line-height: 1.4;
+  }
+}
+
+// Botón de login a full width
+.btn-login {
+  width: 100%;
+  padding: 0.875rem;
+  background: t.$petrol-500;
+  color: t.$cream-50;
+  border-radius: t.$radius-md;
+  font-family: t.$font-body;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    background-color 200ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+  cursor: pointer;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background: t.$petrol-700;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(t.$petrol-900, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid t.$petrol-500;
+    outline-offset: 3px;
+  }
+}
+
+.login-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: var(--fs-small);
+  color: t.$ink-500;
+
+  a {
+    color: t.$petrol-500;
+    font-weight: 600;
+    transition: color t.$transition-fast;
+
+    &:hover {
+      color: t.$petrol-700;
+    }
+  }
+}
+
+.login-copyright {
+  margin-top: 2rem;
+  font-size: 0.72rem;
+  color: t.$ink-300;
+  text-align: center;
+}
+
+// Spinner inline
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(t.$cream-50, 0.3);
+  border-top-color: t.$cream-50;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

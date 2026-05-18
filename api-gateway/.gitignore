@@ -1,0 +1,46 @@
+# Compiled Java class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Maven build output
+target/
+
+# Maven wrapper local cache (no distribuir binarios)
+.mvn/repository/
+
+# JetBrains IDE
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Secretos y configuración local — NUNCA commitear el .env real
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Spring Boot DevTools restart file
+.reloadtrigger
+
+# Unit test reports
+TEST*.xml
+
+HELP.md
+
+
+# Configuración local de herramientas
+.claude/

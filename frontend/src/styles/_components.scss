@@ -1,0 +1,419 @@
+// ============================================================
+// SmartBook — Componentes base (botones, inputs, cards, tablas)
+// ============================================================
+
+@use 'tokens' as t;
+
+// ===== CARDS =====
+
+.card {
+  background: t.$cream-100;
+  border: 1px solid rgba(t.$ink-900, 0.06);
+  border-radius: t.$radius-lg;
+  box-shadow: t.$shadow-card;
+  transition:
+    transform t.$transition-base,
+    box-shadow t.$transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: t.$shadow-card-hover;
+  }
+
+  // Detalle de margen de cuaderno (solo para cards principales)
+  &--accented {
+    border-left: 2px solid t.$coral-500;
+    border-radius: 0 t.$radius-lg t.$radius-lg 0;
+  }
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(t.$ink-900, 0.06);
+}
+
+// ===== BOTONES =====
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: t.$radius-md;
+  font-family: t.$font-body;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border: none;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid t.$petrol-500;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  // Primario
+  &--primary {
+    background: t.$petrol-500;
+    color: t.$cream-50;
+
+    &:hover:not(:disabled) {
+      background: t.$petrol-700;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(t.$petrol-900, 0.2);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  // Secundario (coral)
+  &--secondary {
+    background: t.$coral-500;
+    color: t.$cream-50;
+
+    &:hover:not(:disabled) {
+      background: t.$coral-600;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(t.$coral-600, 0.2);
+    }
+  }
+
+  // Outline
+  &--outline {
+    background: transparent;
+    color: t.$petrol-500;
+    border: 1.5px solid t.$petrol-300;
+
+    &:hover:not(:disabled) {
+      background: t.$petrol-100;
+      border-color: t.$petrol-500;
+    }
+  }
+
+  // Ghost / texto
+  &--ghost {
+    background: transparent;
+    color: t.$ink-700;
+
+    &:hover:not(:disabled) {
+      background: rgba(t.$ink-900, 0.05);
+    }
+  }
+
+  // Peligro
+  &--danger {
+    background: t.$brick-500;
+    color: t.$cream-50;
+
+    &:hover:not(:disabled) {
+      background: #8f2e24;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Tamaños
+  &--sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  &--lg {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+  }
+}
+
+// ===== INPUTS CON FLOAT LABEL =====
+
+.field {
+  position: relative;
+  margin-bottom: 1.5rem;
+
+  &__input,
+  &__textarea,
+  &__select {
+    width: 100%;
+    padding: 1.25rem 0.875rem 0.5rem;
+    background: t.$cream-50;
+    border: none;
+    border-bottom: 1px solid t.$ink-300;
+    border-radius: t.$radius-sm t.$radius-sm 0 0;
+    font-family: t.$font-body;
+    font-size: var(--fs-body);
+    color: t.$ink-900;
+    transition:
+      border-color t.$transition-base,
+      background t.$transition-base;
+    outline: none;
+
+    &::placeholder {
+      color: transparent;
+    }
+
+    &:focus,
+    &:not(:placeholder-shown) {
+      border-bottom: 2px solid t.$petrol-500;
+      background: t.$petrol-100;
+
+      & ~ .field__label {
+        top: 0.375rem;
+        font-size: 0.7rem;
+        color: t.$petrol-500;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+    }
+
+    &.is-invalid {
+      border-bottom-color: t.$brick-500;
+
+      & ~ .field__label {
+        color: t.$brick-500;
+      }
+    }
+  }
+
+  &__label {
+    position: absolute;
+    left: 0.875rem;
+    top: 0.875rem;
+    font-size: var(--fs-body);
+    color: t.$ink-500;
+    pointer-events: none;
+    transition:
+      top 180ms ease,
+      font-size 180ms ease,
+      color 180ms ease,
+      font-weight 180ms ease;
+  }
+
+  &__error {
+    position: absolute;
+    left: 0;
+    bottom: -1.25rem;
+    font-size: 0.72rem;
+    color: t.$brick-500;
+    animation: fade-up 180ms ease;
+  }
+
+  &__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a6f60' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    padding-right: 2rem;
+  }
+}
+
+// ===== TABLAS =====
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    border-bottom: 1.5px solid rgba(t.$ink-900, 0.08);
+  }
+
+  th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: t.$ink-500;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.875rem 1rem;
+    font-size: var(--fs-small);
+    color: t.$ink-700;
+    border-bottom: 1px solid rgba(t.$ink-900, 0.04);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color t.$transition-fast;
+    cursor: pointer;
+
+    &:hover {
+      background: t.$petrol-100;
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  // IDs en mono
+  .col-id {
+    font-family: t.$font-mono;
+    font-size: 0.8rem;
+    color: t.$ink-500;
+  }
+
+  .col-rut,
+  .col-codigo {
+    font-family: t.$font-mono;
+    font-size: 0.82rem;
+  }
+}
+
+// ===== SKELETON LOADING =====
+
+.skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    t.$parchment 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    t.$parchment 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: t.$radius-sm;
+
+  &--text {
+    height: 0.875rem;
+    border-radius: 4px;
+  }
+
+  &--title {
+    height: 1.5rem;
+    width: 40%;
+    border-radius: 4px;
+  }
+
+  &--card {
+    height: 120px;
+    border-radius: t.$radius-lg;
+  }
+
+  &--row {
+    height: 48px;
+    margin-bottom: 1px;
+    border-radius: 0;
+  }
+}
+
+// ===== BADGES / ETIQUETAS =====
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+
+  &--positive {
+    background: rgba(t.$sage-500, 0.12);
+    color: #556f5a;
+  }
+
+  &--negative {
+    background: rgba(t.$brick-500, 0.1);
+    color: t.$brick-500;
+  }
+
+  &--neutral {
+    background: t.$petrol-100;
+    color: t.$petrol-700;
+  }
+
+  &--warning {
+    background: rgba(t.$mustard-500, 0.15);
+    color: #ad8334;
+  }
+}
+
+// ===== PAGE HEADER =====
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+
+  &__title {
+    font-family: t.$font-heading;
+    font-size: var(--fs-h2);
+    font-weight: 600;
+    color: t.$ink-900;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    font-size: var(--fs-small);
+    color: t.$ink-500;
+    margin-top: 0.25rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+// ===== SEARCH INPUT =====
+
+.search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &__icon {
+    position: absolute;
+    left: 0.875rem;
+    color: t.$ink-500;
+    pointer-events: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  &__input {
+    padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+    background: t.$cream-50;
+    border: 1px solid rgba(t.$ink-900, 0.1);
+    border-radius: 100px;
+    font-size: var(--fs-small);
+    color: t.$ink-900;
+    min-width: 240px;
+    transition: border-color t.$transition-base, box-shadow t.$transition-base;
+    outline: none;
+
+    &::placeholder {
+      color: t.$ink-300;
+    }
+
+    &:focus {
+      border-color: t.$petrol-300;
+      box-shadow: 0 0 0 3px rgba(t.$petrol-500, 0.1);
+    }
+  }
+}

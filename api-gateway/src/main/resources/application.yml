@@ -1,0 +1,86 @@
+server:
+  port: ${SERVER_PORT:5000}
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      routes:
+        # ── servicio-auth ────────────────────────────────────────────────
+        - id: auth
+          uri: ${AUTH_URL:http://localhost:5001}
+          predicates:
+            - Path=/api/v1/auth/**,/api/v1/usuarios/**
+
+        # ── gestion-estudiante ───────────────────────────────────────────
+        - id: gestion-estudiante
+          uri: ${ESTUDIANTE_URL:http://localhost:5002}
+          predicates:
+            - Path=/api/v1/estudiantes/**,/api/v1/matriculas/**
+
+        # ── gestion-academica ────────────────────────────────────────────
+        - id: gestion-academica
+          uri: ${ACADEMICA_URL:http://localhost:5003}
+          predicates:
+            - Path=/api/v1/cursos/**,/api/v1/asignaturas/**,/api/v1/evaluaciones/**,/api/v1/notas/**,/api/v1/objetivos-aprendizaje/**,/api/v1/bitacora-clases/**
+
+        # ── anotacion ────────────────────────────────────────────────────
+        - id: anotacion
+          uri: ${ANOTACION_URL:http://localhost:5004}
+          predicates:
+            - Path=/api/v1/anotaciones/**,/api/v1/consulta-estudiante/**
+
+        # ── vida-estudiante ──────────────────────────────────────────────
+        - id: vida-estudiante
+          uri: ${VIDA_URL:http://localhost:5005}
+          predicates:
+            - Path=/api/v1/hojas-vida/**,/api/v1/antecedentes-academicos/**,/api/v1/antecedentes-medicos/**,/api/v1/antecedentes-familiares/**,/api/v1/documentos-adjuntos/**
+
+        # ── servicio-calendario ──────────────────────────────────────────
+        - id: calendario
+          uri: ${CALENDARIO_URL:http://localhost:5006}
+          predicates:
+            - Path=/api/v1/eventos/**
+
+        # ── servicio-mensajeria ──────────────────────────────────────────
+        - id: mensajeria
+          uri: ${MENSAJERIA_URL:http://localhost:5007}
+          predicates:
+            - Path=/api/v1/mensajes/**
+
+        # ── servicio-reportes ────────────────────────────────────────────
+        - id: reportes
+          uri: ${REPORTES_URL:http://localhost:5008}
+          predicates:
+            - Path=/api/v1/reportes/**
+
+# ── CORS ─────────────────────────────────────────────────────────────────────
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+# ── JWT (mismo secreto que los servicios downstream) ─────────────────────────
+jwt:
+  secret: ${JWT_SECRET:dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+
+# ── Swagger (exponer en dev, proteger en produccion) ─────────────────────────
+swagger:
+  public: ${SWAGGER_PUBLIC:true}
+
+# ── Actuator ──────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    cl.smartbook.gateway: DEBUG

@@ -1,0 +1,115 @@
+<!-- Lista de estudiantes -->
+<div class="page">
+
+  <!-- Header -->
+  <div class="list-header">
+    <div class="list-header__left">
+      <h1>Estudiantes</h1>
+      <p>Gestion de alumnos matriculados</p>
+    </div>
+    <a routerLink="nuevo" class="btn btn--primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nuevo estudiante
+    </a>
+  </div>
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="error-bar" role="alert">
+      <span class="error-bar__text">{{ error() }}</span>
+      <button (click)="cargar()" class="error-bar__retry">Reintentar</button>
+    </div>
+  }
+
+  <!-- Toolbar: búsqueda -->
+  <div class="list-toolbar">
+    <div class="search-field">
+      <svg class="search-field__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        class="search-field__input"
+        placeholder="Buscar por nombre, apellido o RUT..."
+        [value]="busqueda()"
+        (input)="onBusqueda($event)"
+        aria-label="Buscar estudiantes">
+    </div>
+  </div>
+
+  <!-- Skeleton loading -->
+  @if (cargando()) {
+    <div class="table-wrapper" aria-busy="true" aria-label="Cargando estudiantes">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Nombre</th><th>Apellido</th><th>RUT</th><th>Email</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (n of [1,2,3,4,5]; track n) {
+            <tr>
+              <td><span class="skeleton skeleton--text" style="width:3rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:8rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:8rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:6rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:12rem;"></span></td>
+              <td></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  } @else if (estudiantesFiltrados.length === 0) {
+    <app-empty-state
+      [titulo]="busqueda() ? 'Sin resultados' : 'Sin estudiantes'"
+      [descripcion]="busqueda() ? 'No se encontraron estudiantes con ese criterio.' : 'Aun no hay estudiantes registrados. Crea el primero.'" />
+
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table" aria-label="Tabla de estudiantes">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">RUT</th>
+            <th scope="col">Email</th>
+            <th scope="col"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (est of estudiantesFiltrados; track est.id) {
+            <tr>
+              <td class="col-id">#{{ est.id }}</td>
+              <td style="font-weight: 600; color: var(--ink-900);">{{ est.nombre }}</td>
+              <td>{{ est.apellido }}</td>
+              <td class="col-rut">{{ est.rut ?? '--' }}</td>
+              <td>{{ est.email ?? '--' }}</td>
+              <td>
+                <div class="row-actions">
+                  <a [routerLink]="[est.id]" class="row-btn row-btn--view">Ver</a>
+                  <a [routerLink]="[est.id, 'editar']" class="row-btn row-btn--edit">Editar</a>
+                  <button
+                    (click)="eliminar(est.id, est.nombre + ' ' + est.apellido)"
+                    class="row-btn row-btn--delete"
+                    [attr.aria-label]="'Eliminar a ' + est.nombre + ' ' + est.apellido">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="table-footer">
+        {{ estudiantesFiltrados.length }} estudiante(s)
+        @if (busqueda()) { encontrado(s) }
+        @else { en total }
+      </div>
+    </div>
+  }
+</div>

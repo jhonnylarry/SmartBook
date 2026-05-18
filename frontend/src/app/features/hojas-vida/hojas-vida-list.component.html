@@ -1,0 +1,74 @@
+<!-- Hojas de vida de estudiantes -->
+<div class="page">
+
+  <div class="list-header">
+    <div class="list-header__left">
+      <h1>Hojas de Vida</h1>
+      <p>Historial y antecedentes de estudiantes</p>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="error-bar" role="alert">
+      <span class="error-bar__text">{{ error() }}</span>
+      <button (click)="cargar()" class="error-bar__retry">Reintentar</button>
+    </div>
+  }
+
+  @if (cargando()) {
+    <div class="table-wrapper" aria-busy="true">
+      <table class="data-table">
+        <thead>
+          <tr><th>ID</th><th>Estudiante</th><th>Observaciones</th><th>Actualizacion</th><th></th></tr>
+        </thead>
+        <tbody>
+          @for (n of [1,2,3,4]; track n) {
+            <tr>
+              <td><span class="skeleton skeleton--text" style="width:3rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:5rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:14rem;"></span></td>
+              <td><span class="skeleton skeleton--text" style="width:6rem;"></span></td>
+              <td></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  } @else if (hojasVida().length === 0) {
+    <app-empty-state
+      titulo="Sin hojas de vida"
+      descripcion="No se encontraron hojas de vida registradas." />
+
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table" aria-label="Tabla de hojas de vida">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">ID Estudiante</th>
+            <th scope="col">Observaciones</th>
+            <th scope="col">Ultima actualizacion</th>
+            <th scope="col"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (hv of hojasVida(); track hv.id) {
+            <tr>
+              <td class="col-id">#{{ hv.id }}</td>
+              <td class="text-mono">{{ hv.idEstudiante }}</td>
+              <td class="truncate" style="max-width:300px;">{{ hv.observaciones ?? 'Sin observaciones' }}</td>
+              <td class="text-mono">{{ hv.fechaActualizacion | slice:0:10 }}</td>
+              <td style="text-align:right;">
+                <a [routerLink]="['/hojas-vida', hv.id]" class="row-btn row-btn--view">
+                  Ver detalle
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <div class="table-footer">{{ hojasVida().length }} hoja(s) de vida</div>
+    </div>
+  }
+</div>

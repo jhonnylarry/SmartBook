@@ -1,0 +1,282 @@
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartbook-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: smartbook_auth,smartbook_estudiante,smartbook_academica,smartbook_anotacion,smartbook_vida,smartbook_calendario,smartbook_mensajeria,smartbook_reportes
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-auth (5001) ──────────────────────────────────────────────────────
+  servicio-auth:
+    build: ./servicio-auth
+    container_name: smartbook-auth
+    environment:
+      SERVER_PORT: 5001
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_auth
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5001/api/v1/auth/login 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-gestion-estudiante (5002) ────────────────────────────────────────
+  servicio-gestion-estudiante:
+    build: ./servicio-gestion-estudiante
+    container_name: smartbook-gestion-estudiante
+    environment:
+      SERVER_PORT: 5002
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_estudiante
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      AUTH_URL: http://servicio-auth:5001
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5002/api/v1/estudiantes 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-gestion-academica (5003) ─────────────────────────────────────────
+  servicio-gestion-academica:
+    build: ./servicio-gestion-academica
+    container_name: smartbook-gestion-academica
+    environment:
+      SERVER_PORT: 5003
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_academica
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      AUTH_URL: http://servicio-auth:5001
+      GESTION_ESTUDIANTE_URL: http://servicio-gestion-estudiante:5002
+    ports:
+      - "5003:5003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5003/api/v1/cursos 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-anotaciones (5004) ───────────────────────────────────────────────
+  servicio-anotaciones:
+    build: ./servicio-anotaciones
+    container_name: smartbook-anotaciones
+    environment:
+      SERVER_PORT: 5004
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_anotacion
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      AUTH_URL: http://servicio-auth:5001
+      GESTION_ESTUDIANTE_URL: http://servicio-gestion-estudiante:5002
+    ports:
+      - "5004:5004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5004/api/v1/anotaciones 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-vida-estudiante (5005) ───────────────────────────────────────────
+  servicio-vida-estudiante:
+    build: ./servicio-vida-estudiante
+    container_name: smartbook-vida-estudiante
+    environment:
+      SERVER_PORT: 5005
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_vida
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      GESTION_ESTUDIANTE_URL: http://servicio-gestion-estudiante:5002
+    ports:
+      - "5005:5005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5005/api/v1/hojas-vida 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-calendario (5006) ────────────────────────────────────────────────
+  servicio-calendario:
+    build: ./servicio-calendario
+    container_name: smartbook-calendario
+    environment:
+      SERVER_PORT: 5006
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_calendario
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+    ports:
+      - "5006:5006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5006/api/v1/eventos 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-mensajeria (5007) ────────────────────────────────────────────────
+  servicio-mensajeria:
+    build: ./servicio-mensajeria
+    container_name: smartbook-mensajeria
+    environment:
+      SERVER_PORT: 5007
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_mensajeria
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      AUTH_URL: http://servicio-auth:5001
+    ports:
+      - "5007:5007"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5007/api/v1/mensajes 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── servicio-reportes (5008) ──────────────────────────────────────────────────
+  servicio-reportes:
+    build: ./servicio-reportes
+    container_name: smartbook-reportes
+    environment:
+      SERVER_PORT: 5008
+      DB_URL: jdbc:postgresql://postgres:5432/smartbook_reportes
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      AUTH_URL: http://servicio-auth:5001
+      GESTION_ESTUDIANTE_URL: http://servicio-gestion-estudiante:5002
+      ACADEMICA_URL: http://servicio-gestion-academica:5003
+      ANOTACION_URL: http://servicio-anotaciones:5004
+    ports:
+      - "5008:5008"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -S --spider -q http://localhost:5008/api/v1/reportes 2>&1 | grep -q 'HTTP/' && exit 0 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+    networks:
+      - smartbook-net
+
+  # ── api-gateway (5050) ────────────────────────────────────────────────────────
+  api-gateway:
+    build: ./api-gateway
+    container_name: smartbook-gateway
+    environment:
+      SERVER_PORT: 5050
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me-please-min-32-chars-for-hs256-1234567890}
+      AUTH_URL: http://servicio-auth:5001
+      ESTUDIANTE_URL: http://servicio-gestion-estudiante:5002
+      ACADEMICA_URL: http://servicio-gestion-academica:5003
+      ANOTACION_URL: http://servicio-anotaciones:5004
+      VIDA_URL: http://servicio-vida-estudiante:5005
+      CALENDARIO_URL: http://servicio-calendario:5006
+      MENSAJERIA_URL: http://servicio-mensajeria:5007
+      REPORTES_URL: http://servicio-reportes:5008
+      CORS_ALLOWED_ORIGINS: http://localhost:4200
+    ports:
+      - "5050:5050"
+    depends_on:
+      servicio-auth:
+        condition: service_healthy
+      servicio-gestion-estudiante:
+        condition: service_healthy
+      servicio-gestion-academica:
+        condition: service_healthy
+      servicio-anotaciones:
+        condition: service_healthy
+      servicio-vida-estudiante:
+        condition: service_healthy
+      servicio-calendario:
+        condition: service_healthy
+      servicio-mensajeria:
+        condition: service_healthy
+      servicio-reportes:
+        condition: service_healthy
+    networks:
+      - smartbook-net
+
+  # ── frontend Angular (80) ─────────────────────────────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: smartbook-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      api-gateway:
+        condition: service_started
+    networks:
+      - smartbook-net
+
+volumes:
+  postgres_data:
+
+networks:
+  smartbook-net:
+    driver: bridge
