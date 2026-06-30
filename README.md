@@ -250,6 +250,6 @@ docker compose up -d servicio-gestion-academica
 
 ## Equipo de desarrollo
 
-Proyecto de Título — Duoc UC, Sede Plaza Vespucio  
+Proyecto de Título — Duoc UC, Sede San Joaquín  
 Carrera: Ingeniería en Informática  
 Año: 2026
