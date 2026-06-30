@@ -1,7 +1,10 @@
 package cl.smartbook.gestion_academica.modulo_gestion_cursos.model.entity;
 
+import cl.smartbook.gestion_academica.modulo_catalogo_materias.model.entity.NivelEnsenanza;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,4 +30,8 @@ public class Curso {
 
     @Column(name = "id_docente_jefe", nullable = false)
     private Long idDocenteJefe;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nivel")
+    private NivelEnsenanza nivel;
 }

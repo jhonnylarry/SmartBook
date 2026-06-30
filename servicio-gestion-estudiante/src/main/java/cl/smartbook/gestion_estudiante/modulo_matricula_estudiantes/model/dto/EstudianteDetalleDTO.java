@@ -10,5 +10,7 @@ public record EstudianteDetalleDTO(
         String apellido,
         String rut,
         LocalDate fechaNacimiento,
+        String direccion,
+        String telefono,
         List<MatriculaDTO> matriculas) {
 }

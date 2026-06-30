@@ -41,7 +41,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                      HttpServletResponse response,
                                      FilterChain chain) throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
+        // No sobrescribir una autenticación ya establecida (p. ej. SERVICIO_INTERNO por X-Internal-Token).
+        if (header != null && header.startsWith("Bearer ")
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = header.substring(7);
             try {
                 Claims claims = Jwts.parser()

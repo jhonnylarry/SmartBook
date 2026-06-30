@@ -35,12 +35,14 @@ public class AnotacionController {
     private final AnotacionService anotacionService;
 
     @Operation(summary = "Listar todas las anotaciones ordenadas por fecha descendente")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','DOCENTE','INSPECTOR','ADMINISTRATIVO')")
     @GetMapping
     public ResponseEntity<List<AnotacionDTO>> listar() {
         return ResponseEntity.ok(anotacionService.listar());
     }
 
     @Operation(summary = "Obtener anotacion por ID")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','DOCENTE','INSPECTOR','ADMINISTRATIVO')")
     @ApiResponse(responseCode = "404", description = "Anotacion no encontrada")
     @GetMapping("/{id}")
     public ResponseEntity<AnotacionDTO> buscarPorId(@PathVariable Long id) {
@@ -52,6 +54,23 @@ public class AnotacionController {
     @GetMapping("/estudiante/{idEstudiante}")
     public ResponseEntity<List<AnotacionDTO>> listarPorEstudiante(@PathVariable Long idEstudiante) {
         return ResponseEntity.ok(anotacionService.listarPorEstudiante(idEstudiante));
+    }
+
+    @Operation(summary = "Listar mis anotaciones (estudiante autenticado)")
+    @PreAuthorize("hasRole('ESTUDIANTE')")
+    @GetMapping("/mias")
+    public ResponseEntity<List<AnotacionDTO>> misAnotaciones(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        return ResponseEntity.ok(anotacionService.listarMias(authHeader));
+    }
+
+    @Operation(summary = "Listar anotaciones de un hijo (apoderado autenticado, verificado anti-IDOR)")
+    @PreAuthorize("hasRole('APODERADO')")
+    @GetMapping("/hijo/{idEstudiante}")
+    public ResponseEntity<List<AnotacionDTO>> anotacionesDeHijo(
+            @PathVariable Long idEstudiante,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        return ResponseEntity.ok(anotacionService.listarDeHijo(idEstudiante, authHeader));
     }
 
     @PreAuthorize("hasAnyRole('DOCENTE','INSPECTOR','ADMINISTRADOR','DIRECTOR')")

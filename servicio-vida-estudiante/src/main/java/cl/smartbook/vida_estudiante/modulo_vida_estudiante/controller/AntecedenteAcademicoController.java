@@ -32,18 +32,21 @@ public class AntecedenteAcademicoController {
     private final AntecedenteAcademicoService service;
 
     @Operation(summary = "Listar todos los antecedentes académicos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @GetMapping
     public ResponseEntity<List<AntecedenteAcademicoDTO>> listar() {
         return ResponseEntity.ok(service.listar());
     }
 
     @Operation(summary = "Obtener antecedente académico por ID")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @GetMapping("/{id}")
     public ResponseEntity<AntecedenteAcademicoDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     @Operation(summary = "Listar antecedentes académicos por hoja de vida")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','SERVICIO_INTERNO')")
     @GetMapping("/hoja-vida/{idHojaVida}")
     public ResponseEntity<List<AntecedenteAcademicoDTO>> listarPorHojaVida(@PathVariable Long idHojaVida) {
         return ResponseEntity.ok(service.listarPorHojaVida(idHojaVida));

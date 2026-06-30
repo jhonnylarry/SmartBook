@@ -35,4 +35,10 @@ public class AgregarEstudiante {
     private String rut;
 
     private LocalDate fechaNacimiento;
+
+    @Size(max = 250, message = "La dirección no puede exceder 250 caracteres")
+    private String direccion;
+
+    @Size(max = 30, message = "El teléfono no puede exceder 30 caracteres")
+    private String telefono;
 }

@@ -43,6 +43,7 @@ public class CursoService {
         curso.setNombre(req.getNombre());
         curso.setAnio(req.getAnio());
         curso.setIdDocenteJefe(req.getIdDocenteJefe());
+        curso.setNivel(req.getNivel());
         log.info("Creando curso: {} ({})", req.getNombre(), req.getAnio());
         return toDTO(cursoRepository.save(curso));
     }
@@ -57,6 +58,7 @@ public class CursoService {
         curso.setNombre(req.getNombre());
         curso.setAnio(req.getAnio());
         curso.setIdDocenteJefe(req.getIdDocenteJefe());
+        curso.setNivel(req.getNivel());
         return toDTO(cursoRepository.save(curso));
     }
 
@@ -69,6 +71,6 @@ public class CursoService {
     }
 
     private CursoDTO toDTO(Curso c) {
-        return new CursoDTO(c.getId(), c.getNombre(), c.getAnio(), c.getIdDocenteJefe());
+        return new CursoDTO(c.getId(), c.getNombre(), c.getAnio(), c.getIdDocenteJefe(), c.getNivel());
     }
 }

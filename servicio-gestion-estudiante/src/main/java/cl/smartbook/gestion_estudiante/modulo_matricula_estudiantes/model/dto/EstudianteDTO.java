@@ -8,5 +8,7 @@ public record EstudianteDTO(
         String nombre,
         String apellido,
         String rut,
-        LocalDate fechaNacimiento) {
+        LocalDate fechaNacimiento,
+        String direccion,
+        String telefono) {
 }

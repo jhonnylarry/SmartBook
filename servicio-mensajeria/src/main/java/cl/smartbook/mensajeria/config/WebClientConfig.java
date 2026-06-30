@@ -16,6 +16,12 @@ public class WebClientConfig {
     @Value("${smartbook.client.auth.url:http://localhost:5001}")
     private String authUrl;
 
+    @Value("${smartbook.client.gestion-estudiante.url:http://localhost:5002}")
+    private String estudianteUrl;
+
+    @Value("${smartbook.client.gestion-academica.url:http://localhost:5003}")
+    private String academicaUrl;
+
     private HttpClient httpClient() {
         return HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
@@ -26,6 +32,22 @@ public class WebClientConfig {
     WebClient authWebClient() {
         return WebClient.builder()
                 .baseUrl(authUrl)
+                .clientConnector(new ReactorClientHttpConnector(httpClient()))
+                .build();
+    }
+
+    @Bean
+    WebClient estudianteWebClient() {
+        return WebClient.builder()
+                .baseUrl(estudianteUrl)
+                .clientConnector(new ReactorClientHttpConnector(httpClient()))
+                .build();
+    }
+
+    @Bean
+    WebClient academicaWebClient() {
+        return WebClient.builder()
+                .baseUrl(academicaUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient()))
                 .build();
     }

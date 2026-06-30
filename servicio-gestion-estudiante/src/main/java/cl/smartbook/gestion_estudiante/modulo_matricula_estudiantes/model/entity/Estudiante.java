@@ -39,6 +39,14 @@ public class Estudiante {
 
     private LocalDate fechaNacimiento;
 
+    /** Domicilio del estudiante. Nullable (alumnos previos al campo quedan en null). */
+    @Column(length = 250)
+    private String direccion;
+
+    /** Teléfono de contacto del estudiante. Nullable. */
+    @Column(length = 30)
+    private String telefono;
+
     @OneToMany(mappedBy = "estudiante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Matricula> matriculas;
 }

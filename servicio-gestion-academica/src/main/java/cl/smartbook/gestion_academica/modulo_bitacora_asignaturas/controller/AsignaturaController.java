@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ public class AsignaturaController {
     private final AsignaturaService asignaturaService;
 
     @Operation(summary = "Listar todas las asignaturas")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @GetMapping
     public ResponseEntity<List<AsignaturaDTO>> listar() {
         return ResponseEntity.ok(asignaturaService.listar());
@@ -44,6 +46,30 @@ public class AsignaturaController {
         return ResponseEntity.ok(asignaturaService.listarPorCurso(idCurso));
     }
 
+    @Operation(summary = "Listar asignaturas de un docente (staff; el propio docente usa /mias)")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','INSPECTOR')")
+    @GetMapping("/docente/{idDocente}")
+    public ResponseEntity<List<AsignaturaDTO>> listarPorDocente(@PathVariable Long idDocente) {
+        return ResponseEntity.ok(asignaturaService.listarPorDocente(idDocente));
+    }
+
+    @Operation(summary = "Mis asignaturas (docente autenticado, self)")
+    @PreAuthorize("hasRole('DOCENTE')")
+    @GetMapping("/mias")
+    public ResponseEntity<List<AsignaturaDTO>> mias() {
+        return ResponseEntity.ok(asignaturaService.listarMias());
+    }
+
+    @Operation(summary = "Verifica si el docente autenticado dicta en un curso (204 sí / 403 no)")
+    @PreAuthorize("hasRole('DOCENTE')")
+    @GetMapping("/dicto-curso/{idCurso}")
+    public ResponseEntity<Void> dictoCurso(@PathVariable Long idCurso) {
+        if (!asignaturaService.dictoCurso(idCurso)) {
+            throw new AccessDeniedException("El docente no dicta en el curso " + idCurso);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Obtener asignatura por ID")
     @GetMapping("/{id}")
     public ResponseEntity<AsignaturaDTO> buscarPorId(@PathVariable Long id) {
@@ -51,7 +77,7 @@ public class AsignaturaController {
     }
 
     @Operation(summary = "Crear nueva asignatura")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @PostMapping
     public ResponseEntity<AsignaturaDTO> crear(
             @Valid @RequestBody AgregarAsignatura request,
@@ -60,7 +86,7 @@ public class AsignaturaController {
     }
 
     @Operation(summary = "Actualizar asignatura")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @PutMapping("/{id}")
     public ResponseEntity<AsignaturaDTO> actualizar(
             @PathVariable Long id,

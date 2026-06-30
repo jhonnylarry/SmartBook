@@ -1,5 +1,6 @@
 package cl.smartbook.gestion_academica.modulo_gestion_cursos.model.request;
 
+import cl.smartbook.gestion_academica.modulo_catalogo_materias.model.entity.NivelEnsenanza;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,4 +20,6 @@ public class AgregarCurso {
 
     @NotNull
     private Long idDocenteJefe;
+
+    private NivelEnsenanza nivel;
 }

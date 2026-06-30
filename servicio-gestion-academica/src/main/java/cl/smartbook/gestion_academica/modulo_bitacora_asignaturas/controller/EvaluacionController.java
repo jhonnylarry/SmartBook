@@ -32,32 +32,35 @@ public class EvaluacionController {
     private final EvaluacionService evaluacionService;
 
     @Operation(summary = "Listar todas las evaluaciones")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
     @GetMapping
     public ResponseEntity<List<EvaluacionDTO>> listar() {
         return ResponseEntity.ok(evaluacionService.listar());
     }
 
     @Operation(summary = "Obtener evaluacion por ID")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
     @GetMapping("/{id}")
     public ResponseEntity<EvaluacionDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(evaluacionService.buscarPorId(id));
     }
 
     @Operation(summary = "Listar evaluaciones de una asignatura")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','DOCENTE')")
     @GetMapping("/asignatura/{idAsignatura}")
     public ResponseEntity<List<EvaluacionDTO>> listarPorAsignatura(@PathVariable Long idAsignatura) {
         return ResponseEntity.ok(evaluacionService.listarPorAsignatura(idAsignatura));
     }
 
     @Operation(summary = "Crear nueva evaluacion")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('DOCENTE','ADMINISTRADOR','DIRECTOR')")
     @PostMapping
     public ResponseEntity<EvaluacionDTO> crear(@Valid @RequestBody AgregarEvaluacion request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(evaluacionService.crear(request));
     }
 
     @Operation(summary = "Actualizar evaluacion")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('DOCENTE','ADMINISTRADOR','DIRECTOR')")
     @PutMapping("/{id}")
     public ResponseEntity<EvaluacionDTO> actualizar(@PathVariable Long id,
                                                     @Valid @RequestBody ActualizarEvaluacion request) {

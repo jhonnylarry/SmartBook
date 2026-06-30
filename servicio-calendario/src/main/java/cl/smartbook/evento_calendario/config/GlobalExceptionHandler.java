@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -69,6 +71,20 @@ public class GlobalExceptionHandler {
                 mensajes,
                 req.getRequestURI());
         return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleNotReadable(HttpMessageNotReadableException ex, HttpServletRequest req) {
+        log.warn("[servicio-calendario] HttpMessageNotReadable: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(
+                new ApiError(LocalDateTime.now(), 400, "Bad Request", "Cuerpo de la petición inválido o malformado", req.getRequestURI()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
+        log.warn("[servicio-calendario] MethodArgumentTypeMismatch: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(
+                new ApiError(LocalDateTime.now(), 400, "Bad Request", "Parámetro inválido: '" + ex.getName() + "' debe ser numérico", req.getRequestURI()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

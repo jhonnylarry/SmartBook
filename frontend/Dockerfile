@@ -1,30 +1,36 @@
 # Stage 1: Build Angular
-FROM node:20-alpine AS build
+FROM node:20-alpine AS builder
+
 WORKDIR /app
 
-# Deshabilitar SSL verification para ambientes con proxies corporativos
-RUN npm config set strict-ssl false
-
-# Instalar dependencias primero (aprovechar cache de Docker)
+# Copiar manifiestos primero (caché de capas)
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
 
-# Copiar fuentes y compilar
+# Instalar dependencias (npm install: no requiere package-lock.json preexistente)
+RUN npm install --no-audit --no-fund
+
+# Copiar fuentes
 COPY . .
-RUN npm run build -- --configuration production
 
-# Stage 2: Servir con Nginx
-FROM nginx:alpine AS runtime
+# Build de producción
+RUN npm run build -- --configuration=production
 
-# Copiar build output (ruta generada por Angular 21)
-COPY --from=build /app/dist/smartbook-frontend/browser /usr/share/nginx/html
+# Stage 2: Serve con nginx
+FROM nginx:alpine AS production
 
-# Configuracion de Nginx con soporte SPA
+# Eliminar config por defecto
+RUN rm -rf /usr/share/nginx/html/* && rm -f /etc/nginx/conf.d/default.conf
+
+# Copiar build (Angular 17+ output: dist/<name>/browser)
+COPY --from=builder /app/dist/smartbook-frontend/browser /usr/share/nginx/html
+
+# Copiar config nginx personalizado
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Usuario no-root (nginx en Alpine ya lo maneja)
 EXPOSE 80
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD wget -qO- http://localhost/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

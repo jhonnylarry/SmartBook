@@ -23,7 +23,7 @@ public class AuthClient {
     public UsuarioCreadoResponse crearUsuario(CrearUsuarioRequest req, String authHeader) {
         try {
             return authWebClient.post()
-                    .uri("/api/v1/usuarios")
+                    .uri("/api/v1/usuarios/internos")  // endpoint interno: solo crea ESTUDIANTE/APODERADO de la matrícula
                     .header("Authorization", authHeader)
                     .bodyValue(req)
                     .retrieve()

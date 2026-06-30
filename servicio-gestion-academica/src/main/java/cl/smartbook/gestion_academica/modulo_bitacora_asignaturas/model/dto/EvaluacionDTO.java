@@ -8,5 +8,6 @@ public record EvaluacionDTO(
         String nombre,
         LocalDate fecha,
         Long idAsignatura,
-        BigDecimal ponderacion
+        BigDecimal ponderacion,
+        Long idPeriodo
 ) {}

@@ -4,10 +4,12 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -36,6 +38,16 @@ public class GlobalExceptionHandler {
     ResponseEntity<Map<String, Object>> handleResponseStatus(
             ResponseStatusException ex, HttpServletRequest req) {
         return buildError(ex.getStatusCode().value(), ex.getReason(), req.getRequestURI());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ResponseEntity<Map<String, Object>> handleNotReadable(HttpMessageNotReadableException ex, HttpServletRequest req) {
+        return buildError(HttpStatus.BAD_REQUEST.value(), "Cuerpo de la petición inválido o malformado", req.getRequestURI());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest req) {
+        return buildError(HttpStatus.BAD_REQUEST.value(), "Parámetro inválido: '" + ex.getName() + "' debe ser numérico", req.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)

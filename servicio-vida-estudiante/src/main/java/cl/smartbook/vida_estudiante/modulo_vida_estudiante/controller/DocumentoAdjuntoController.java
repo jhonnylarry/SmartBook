@@ -33,12 +33,14 @@ public class DocumentoAdjuntoController {
     private final DocumentoAdjuntoService service;
 
     @Operation(summary = "Listar todos los documentos adjuntos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @GetMapping
     public ResponseEntity<List<DocumentoAdjuntoDTO>> listar() {
         return ResponseEntity.ok(service.listar());
     }
 
     @Operation(summary = "Obtener documento adjunto por ID")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @ApiResponse(responseCode = "404", description = "No encontrado")
     @GetMapping("/{id}")
     public ResponseEntity<DocumentoAdjuntoDTO> buscarPorId(@PathVariable Long id) {
@@ -46,6 +48,7 @@ public class DocumentoAdjuntoController {
     }
 
     @Operation(summary = "Listar documentos adjuntos por hoja de vida")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','SERVICIO_INTERNO')")
     @GetMapping("/hoja-vida/{idHojaVida}")
     public ResponseEntity<List<DocumentoAdjuntoDTO>> listarPorHojaVida(@PathVariable Long idHojaVida) {
         return ResponseEntity.ok(service.listarPorHojaVida(idHojaVida));

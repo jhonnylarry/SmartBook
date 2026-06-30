@@ -14,9 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.model.dto.MatriculaCompletaResponse;
 import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.model.dto.MatriculaDTO;
 import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.model.request.ActualizarMatricula;
 import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.model.request.AgregarMatricula;
+import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.model.request.MatriculaCompletaRequest;
+import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.service.MatriculaCompletaService;
 import cl.smartbook.gestion_estudiante.modulo_matricula_estudiantes.service.MatriculaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,8 +34,10 @@ import lombok.RequiredArgsConstructor;
 public class MatriculaController {
 
     private final MatriculaService matriculaService;
+    private final MatriculaCompletaService matriculaCompletaService;
 
-    @Operation(summary = "Listar todas las matrículas")
+    @Operation(summary = "Listar todas las matrículas (solo staff; relaciona a menores con cursos)")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','INSPECTOR','DOCENTE')")
     @GetMapping
     public ResponseEntity<List<MatriculaDTO>> listar() {
         return ResponseEntity.ok(matriculaService.listarTodas());
@@ -40,6 +45,7 @@ public class MatriculaController {
 
     @Operation(summary = "Obtener matrícula por ID")
     @ApiResponse(responseCode = "404", description = "Matrícula no encontrada")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','INSPECTOR','DOCENTE')")
     @GetMapping("/{id}")
     public ResponseEntity<MatriculaDTO> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(matriculaService.buscarPorId(id));
@@ -47,6 +53,7 @@ public class MatriculaController {
 
     @Operation(summary = "Listar matrículas de un estudiante")
     @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO','INSPECTOR','DOCENTE')")
     @GetMapping("/estudiante/{idEstudiante}")
     public ResponseEntity<List<MatriculaDTO>> listarPorEstudiante(@PathVariable Long idEstudiante) {
         return ResponseEntity.ok(matriculaService.listarPorEstudiante(idEstudiante));
@@ -78,5 +85,17 @@ public class MatriculaController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         matriculaService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Matrícula compuesta: crea estudiante, apoderado titular, tutor y matrícula en un acto")
+    @ApiResponse(responseCode = "201", description = "Matrícula compuesta creada exitosamente")
+    @ApiResponse(responseCode = "400", description = "Datos inválidos")
+    @ApiResponse(responseCode = "409", description = "Email o usuario ya registrado en servicio-auth")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
+    @PostMapping("/completa")
+    public ResponseEntity<MatriculaCompletaResponse> matricularCompleto(
+            @Valid @RequestBody MatriculaCompletaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(matriculaCompletaService.matricularCompleto(request));
     }
 }

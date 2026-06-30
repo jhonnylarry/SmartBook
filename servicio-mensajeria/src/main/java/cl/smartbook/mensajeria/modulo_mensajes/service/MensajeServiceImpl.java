@@ -7,13 +7,11 @@ import cl.smartbook.mensajeria.modulo_mensajes.repository.MensajeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -25,15 +23,16 @@ import java.util.List;
 public class MensajeServiceImpl implements MensajeService {
 
     private final MensajeRepository mensajeRepository;
-    private final WebClient authWebClient;
+    private final DirectorioContactosService directorio;
 
     @Override
     public MensajeDTO enviar(AgregarMensajeRequest request, String authHeader) {
-        // idRemitente siempre se extrae del JWT — se ignora lo que venga en el body
-        Long idRemitente = extraerUserIdDelJwt();
-
-        validarUsuario(idRemitente, "remitente", authHeader);
-        validarUsuario(request.idDestinatario(), "destinatario", authHeader);
+        Long idRemitente = idUsuarioDesdeJwt();
+        // Matriz de permisos: el destinatario debe estar entre los contactos permitidos del remitente
+        // (o haberle escrito antes — regla de respuesta). 403 genérico para no filtrar existencia.
+        if (!directorio.puedeEnviar(idRemitente, rolDesdeJwt(), request.idDestinatario(), authHeader)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Destinatario no permitido");
+        }
 
         var mensaje = Mensaje.builder()
                 .idRemitente(idRemitente)
@@ -47,22 +46,29 @@ public class MensajeServiceImpl implements MensajeService {
         return toDTO(mensajeRepository.save(mensaje));
     }
 
-    private Long extraerUserIdDelJwt() {
+    /** Rol del remitente desde el JWT (authority ROLE_<rol>), nunca de un header manipulable. */
+    private String rolDesdeJwt() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getDetails() == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        if (auth != null) {
+            for (GrantedAuthority a : auth.getAuthorities()) {
+                String authority = a.getAuthority();
+                if (authority != null && authority.startsWith("ROLE_")) {
+                    return authority.substring("ROLE_".length());
+                }
+            }
         }
-        try {
-            return Long.parseLong(auth.getDetails().toString());
-        } catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido: no se pudo extraer el ID de usuario");
-        }
+        return "";
     }
 
     @Override
     @Transactional(readOnly = true)
-    public MensajeDTO getById(Long id) {
-        return toDTO(findOrThrow(id));
+    public MensajeDTO getById(Long id, Long idUsuarioAutenticado) {
+        var mensaje = findOrThrow(id);
+        if (!mensaje.getIdRemitente().equals(idUsuarioAutenticado)
+                && !mensaje.getIdDestinatario().equals(idUsuarioAutenticado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado");
+        }
+        return toDTO(mensaje);
     }
 
     @Override
@@ -80,8 +86,11 @@ public class MensajeServiceImpl implements MensajeService {
     }
 
     @Override
-    public MensajeDTO marcarLeido(Long id) {
+    public MensajeDTO marcarLeido(Long id, Long idUsuarioAutenticado) {
         var mensaje = findOrThrow(id);
+        if (!mensaje.getIdDestinatario().equals(idUsuarioAutenticado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado");
+        }
         mensaje.setLeido(true);
         log.info("Marcando mensaje id={} como leído", id);
         return toDTO(mensajeRepository.save(mensaje));
@@ -99,29 +108,19 @@ public class MensajeServiceImpl implements MensajeService {
                 .orElseThrow(() -> new EntityNotFoundException("Mensaje no encontrado con id: " + id));
     }
 
-    private void validarUsuario(Long idUsuario, String rol, String authHeader) {
+    /**
+     * Extrae el id del usuario autenticado desde el JWT (claim {@code sub}) expuesto
+     * por JwtAuthFilter en {@code Authentication.details}.
+     */
+    private Long idUsuarioDesdeJwt() {
         try {
-            authWebClient.get()
-                    .uri("/api/v1/usuarios/{id}", idUsuario)
-                    .header(HttpHeaders.AUTHORIZATION, authHeader)
-                    .retrieve()
-                    .onStatus(status -> status.value() == 404,
-                            resp -> resp.createException().map(ex ->
-                                    new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                            "El " + rol + " con id " + idUsuario + " no existe")))
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            resp -> resp.createException())
-                    .toBodilessEntity()
-                    .block();
-        } catch (ResponseStatusException ex) {
-            throw ex;
-        } catch (WebClientResponseException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "El " + rol + " con id " + idUsuario + " no existe");
-        } catch (Exception ex) {
-            log.error("servicio-auth no disponible al validar {} {}: {}", rol, idUsuario, ex.getMessage());
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Servicio de autenticacion no disponible");
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || auth.getDetails() == null) {
+                return null;
+            }
+            return Long.valueOf(auth.getDetails().toString());
+        } catch (NumberFormatException ex) {
+            return null;
         }
     }
 
@@ -133,7 +132,8 @@ public class MensajeServiceImpl implements MensajeService {
                 m.getAsunto(),
                 m.getContenido(),
                 m.getFechaEnvio(),
-                m.getLeido()
+                m.getLeido(),
+                m.getLoteDifusion()
         );
     }
 }

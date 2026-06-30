@@ -1,11 +1,13 @@
 package cl.smartbook.mensajeria.modulo_mensajes.model.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record AgregarMensajeRequest(
         // idRemitente se toma del SecurityContext (JWT sub). Campo ignorado si viene en el body.
+        @JsonIgnore
         Long idRemitente,
 
         @NotNull(message = "El idDestinatario es obligatorio")

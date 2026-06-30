@@ -46,7 +46,7 @@ public class CursoController {
     }
 
     @Operation(summary = "Crear nuevo curso")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @PostMapping
     public ResponseEntity<CursoDTO> crear(
             @Valid @RequestBody AgregarCurso request,
@@ -55,7 +55,7 @@ public class CursoController {
     }
 
     @Operation(summary = "Actualizar curso")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','ADMINISTRATIVO')")
     @PutMapping("/{id}")
     public ResponseEntity<CursoDTO> actualizar(
             @PathVariable Long id,

@@ -7,11 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.server.ResponseStatusException;
 
+import cl.smartbook.gestion_academica.client.EstadoInvalidoException;
 import cl.smartbook.gestion_academica.client.ReferenciaInvalidaException;
 import cl.smartbook.gestion_academica.client.ServicioNoDisponibleException;
 import jakarta.persistence.EntityNotFoundException;
@@ -54,6 +59,19 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 "BAD_REQUEST",
+                ex.getMessage(),
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(EstadoInvalidoException.class)
+    public ResponseEntity<ApiError> handleEstadoInvalido(EstadoInvalidoException ex,
+                                                         HttpServletRequest request) {
+        log.warn("[gestion-academica] EstadoInvalido: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiError(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                "CONFLICT",
                 ex.getMessage(),
                 request.getRequestURI()
         ));
@@ -130,6 +148,32 @@ public class GlobalExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleNotReadable(HttpMessageNotReadableException ex,
+                                                       HttpServletRequest request) {
+        log.warn("[gestion-academica] HttpMessageNotReadable: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "Cuerpo de la petición inválido o malformado",
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                        HttpServletRequest request) {
+        log.warn("[gestion-academica] MethodArgumentTypeMismatch: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "Parámetro inválido: '" + ex.getName() + "' debe ser numérico",
+                request.getRequestURI()
+        ));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex,
                                                            HttpServletRequest request) {
@@ -139,6 +183,32 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "BAD_REQUEST",
                 ex.getMessage(),
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiError> handleMaxUpload(MaxUploadSizeExceededException ex,
+                                                    HttpServletRequest request) {
+        log.warn("[gestion-academica] Archivo demasiado grande: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "FILE_TOO_LARGE",
+                "El archivo supera el tamaño máximo permitido (10 MB)",
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<ApiError> handleMultipart(MultipartException ex,
+                                                    HttpServletRequest request) {
+        log.warn("[gestion-academica] Error de carga multipart: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "INVALID_UPLOAD",
+                "No se pudo procesar la subida del archivo",
                 request.getRequestURI()
         ));
     }

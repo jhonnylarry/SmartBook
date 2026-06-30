@@ -2,9 +2,12 @@ package cl.smartbook.vida_estudiante.modulo_vida_estudiante.service;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
@@ -53,8 +56,8 @@ public class HojaVidaEstudianteService {
     }
 
     @Transactional
-    public HojaVidaEstudianteDTO crear(AgregarHojaVidaEstudiante request, String authHeader) {
-        validarEstudianteExiste(request.getIdEstudiante(), authHeader);
+    public HojaVidaEstudianteDTO crear(AgregarHojaVidaEstudiante request) {
+        validarEstudianteExiste(request.getIdEstudiante());
 
         var nueva = new HojaVidaEstudiante();
         nueva.setIdEstudiante(request.getIdEstudiante());
@@ -86,11 +89,25 @@ public class HojaVidaEstudianteService {
         log.info("Hoja de vida eliminada id={}", id);
     }
 
-    private void validarEstudianteExiste(Long idEstudiante, String authHeader) {
+    /** Lee el header Authorization del request actual (hilo servlet) para propagarlo al WebClient. */
+    private String currentAuthHeader() {
+        var attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs instanceof ServletRequestAttributes sra) {
+            return sra.getRequest().getHeader(HttpHeaders.AUTHORIZATION);
+        }
+        return null;
+    }
+
+    private void validarEstudianteExiste(Long idEstudiante) {
+        final String authHeader = currentAuthHeader();
         try {
             gestionEstudianteWebClient.get()
                     .uri("/api/v1/estudiantes/{id}", idEstudiante)
-                    .header(org.springframework.http.HttpHeaders.AUTHORIZATION, authHeader)
+                    .headers(h -> {
+                        if (authHeader != null) {
+                            h.set(HttpHeaders.AUTHORIZATION, authHeader);
+                        }
+                    })
                     .retrieve()
                     .toBodilessEntity()
                     .block();

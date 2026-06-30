@@ -11,4 +11,8 @@ import cl.smartbook.gestion_academica.modulo_bitacora_asignaturas.model.entity.A
 public interface AsignaturaRepository extends JpaRepository<Asignatura, Long> {
 
     List<Asignatura> findByIdCurso(Long idCurso);
+
+    List<Asignatura> findByIdDocente(Long idDocente);
+
+    boolean existsByIdDocenteAndIdCurso(Long idDocente, Long idCurso);
 }

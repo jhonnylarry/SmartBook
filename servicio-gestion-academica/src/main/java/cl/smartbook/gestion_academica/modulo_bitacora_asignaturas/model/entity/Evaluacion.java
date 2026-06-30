@@ -33,4 +33,8 @@ public class Evaluacion {
 
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal ponderacion;
+
+    /** Periodo académico al que pertenece (asignado por la fecha). Nullable: legado = "todo el año". */
+    @Column(name = "id_periodo")
+    private Long idPeriodo;
 }

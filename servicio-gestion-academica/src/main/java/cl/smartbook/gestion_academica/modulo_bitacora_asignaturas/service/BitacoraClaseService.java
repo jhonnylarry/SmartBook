@@ -13,6 +13,7 @@ import cl.smartbook.gestion_academica.modulo_bitacora_asignaturas.model.request.
 import cl.smartbook.gestion_academica.modulo_bitacora_asignaturas.model.request.AgregarBitacoraClase;
 import cl.smartbook.gestion_academica.modulo_bitacora_asignaturas.repository.AsignaturaRepository;
 import cl.smartbook.gestion_academica.modulo_bitacora_asignaturas.repository.BitacoraClaseRepository;
+import cl.smartbook.gestion_academica.seguridad.SeguridadDocente;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class BitacoraClaseService {
     private final BitacoraClaseRepository bitacoraClaseRepository;
     private final AsignaturaRepository asignaturaRepository;
     private final AuthClient authClient;
+    private final SeguridadDocente seguridadDocente;
 
     @Transactional(readOnly = true)
     public List<BitacoraClaseDTO> listar() {
@@ -35,11 +37,13 @@ public class BitacoraClaseService {
     public BitacoraClaseDTO buscarPorId(Long id) {
         BitacoraClase bitacora = bitacoraClaseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bitacora no encontrada con id: " + id));
+        seguridadDocente.verificarDictaAsignatura(bitacora.getIdAsignatura());
         return toDTO(bitacora);
     }
 
     @Transactional(readOnly = true)
     public List<BitacoraClaseDTO> listarPorAsignatura(Long idAsignatura) {
+        seguridadDocente.verificarDictaAsignatura(idAsignatura);
         return bitacoraClaseRepository.findByIdAsignaturaOrderByFechaDesc(idAsignatura)
                 .stream().map(this::toDTO).toList();
     }
@@ -49,11 +53,20 @@ public class BitacoraClaseService {
         if (!asignaturaRepository.existsById(req.getIdAsignatura())) {
             throw new ReferenciaInvalidaException("Asignatura no existe con id: " + req.getIdAsignatura());
         }
-        authClient.verificarUsuarioEsDocente(req.getIdDocente(), authHeader);
+        Long idDocente;
+        if (seguridadDocente.esSoloDocente()) {
+            // El docente registra clases solo de SUS asignaturas y a su propio nombre (no se confía en el body).
+            seguridadDocente.verificarDictaAsignatura(req.getIdAsignatura());
+            idDocente = seguridadDocente.idUsuarioActual();
+        } else {
+            // ADMINISTRADOR/DIRECTOR pueden registrar a nombre de un docente (validado en auth).
+            authClient.verificarUsuarioEsDocente(req.getIdDocente(), authHeader);
+            idDocente = req.getIdDocente();
+        }
 
         BitacoraClase bitacora = new BitacoraClase();
         bitacora.setIdAsignatura(req.getIdAsignatura());
-        bitacora.setIdDocente(req.getIdDocente());
+        bitacora.setIdDocente(idDocente);
         bitacora.setFecha(req.getFecha());
         bitacora.setContenido(req.getContenido());
         bitacora.setObjetivosCubiertos(req.getObjetivosCubiertos());
@@ -65,6 +78,7 @@ public class BitacoraClaseService {
     public BitacoraClaseDTO actualizar(Long id, ActualizarBitacoraClase req) {
         BitacoraClase bitacora = bitacoraClaseRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Bitacora no encontrada con id: " + id));
+        seguridadDocente.verificarDictaAsignatura(bitacora.getIdAsignatura());
 
         if (req.getFecha() != null) bitacora.setFecha(req.getFecha());
         if (req.getContenido() != null) bitacora.setContenido(req.getContenido());

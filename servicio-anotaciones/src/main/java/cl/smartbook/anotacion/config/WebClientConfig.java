@@ -19,6 +19,12 @@ public class WebClientConfig {
     @Value("${smartbook.client.gestion-estudiante.url}")
     private String gestionEstudianteUrl;
 
+    @Value("${smartbook.client.vida.url}")
+    private String vidaUrl;
+
+    @Value("${smartbook.client.academica.url}")
+    private String academicaUrl;
+
     @Bean("authWebClient")
     public WebClient authWebClient() {
         return buildClient(authUrl);
@@ -27,6 +33,16 @@ public class WebClientConfig {
     @Bean("estudianteWebClient")
     public WebClient estudianteWebClient() {
         return buildClient(gestionEstudianteUrl);
+    }
+
+    @Bean("vidaWebClient")
+    public WebClient vidaWebClient() {
+        return buildClient(vidaUrl);
+    }
+
+    @Bean("academicaWebClient")
+    public WebClient academicaWebClient() {
+        return buildClient(academicaUrl);
     }
 
     private WebClient buildClient(String baseUrl) {

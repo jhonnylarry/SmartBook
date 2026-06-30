@@ -8,6 +8,9 @@ spring:
     gateway:
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        # Defensa en profundidad: el header interno de servicio (anotacion→vida-estudiante) NUNCA
+        # debe poder llegar desde un cliente externo; se elimina de TODA petición entrante.
+        - RemoveRequestHeader=X-Internal-Token
       routes:
         # ── servicio-auth ────────────────────────────────────────────────
         - id: auth
@@ -19,13 +22,13 @@ spring:
         - id: gestion-estudiante
           uri: ${ESTUDIANTE_URL:http://localhost:5002}
           predicates:
-            - Path=/api/v1/estudiantes/**,/api/v1/matriculas/**
+            - Path=/api/v1/estudiantes/**,/api/v1/matriculas/**,/api/v1/apoderados/**
 
         # ── gestion-academica ────────────────────────────────────────────
         - id: gestion-academica
           uri: ${ACADEMICA_URL:http://localhost:5003}
           predicates:
-            - Path=/api/v1/cursos/**,/api/v1/asignaturas/**,/api/v1/evaluaciones/**,/api/v1/notas/**,/api/v1/objetivos-aprendizaje/**,/api/v1/bitacora-clases/**
+            - Path=/api/v1/cursos/**,/api/v1/asignaturas/**,/api/v1/evaluaciones/**,/api/v1/notas/**,/api/v1/periodos/**,/api/v1/objetivos-aprendizaje/**,/api/v1/bitacora-clases/**,/api/v1/materias/**,/api/v1/horarios/**,/api/v1/docentes/**
 
         # ── anotacion ────────────────────────────────────────────────────
         - id: anotacion

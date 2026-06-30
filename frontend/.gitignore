@@ -1,4 +1,4 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# See http://help.github.com/ignoring-files/ for more about ignoring files.
 
 # Compiled output
 /dist
@@ -26,8 +26,10 @@ yarn-error.log
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/mcp.json
 .history/*
+
+# Claude Code (memoria local de agentes, no va al repositorio)
+.claude/
 
 # Miscellaneous
 /.angular/cache
@@ -37,7 +39,6 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
-__screenshots__/
 
 # System files
 .DS_Store

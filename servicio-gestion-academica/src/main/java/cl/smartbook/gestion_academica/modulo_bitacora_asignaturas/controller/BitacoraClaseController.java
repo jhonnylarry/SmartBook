@@ -34,18 +34,21 @@ public class BitacoraClaseController {
     private final BitacoraClaseService bitacoraClaseService;
 
     @Operation(summary = "Listar todas las bitacoras")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR')")
     @GetMapping
     public ResponseEntity<List<BitacoraClaseDTO>> listar() {
         return ResponseEntity.ok(bitacoraClaseService.listar());
     }
 
     @Operation(summary = "Obtener bitacora por ID")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','DOCENTE')")
     @GetMapping("/{id}")
     public ResponseEntity<BitacoraClaseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(bitacoraClaseService.buscarPorId(id));
     }
 
     @Operation(summary = "Listar bitacoras de una asignatura")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR','DIRECTOR','DOCENTE')")
     @GetMapping("/asignatura/{idAsignatura}")
     public ResponseEntity<List<BitacoraClaseDTO>> listarPorAsignatura(@PathVariable Long idAsignatura) {
         return ResponseEntity.ok(bitacoraClaseService.listarPorAsignatura(idAsignatura));

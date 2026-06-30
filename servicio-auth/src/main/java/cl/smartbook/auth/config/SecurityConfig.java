@@ -38,9 +38,14 @@ public class SecurityConfig {
                     "/v3/api-docs/**",
                     "/actuator/health"
                 ).permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").hasRole("ADMINISTRADOR")
+                // Alta interna de matrícula (estudiante/apoderado): mismos roles que el alta de matrícula.
+                .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/internos").hasAnyRole("ADMINISTRADOR", "DIRECTOR", "ADMINISTRATIVO")
+                .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").hasAnyRole("ADMINISTRADOR", "DIRECTOR", "ADMINISTRATIVO")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
+                // Verificación de existencia (uso interno): tan restrictiva como su @PreAuthorize (defensa en profundidad).
+                .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/*/existe")
+                    .hasAnyRole("ADMINISTRADOR", "DIRECTOR", "ADMINISTRATIVO", "DOCENTE", "INSPECTOR")
                 .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/**").authenticated()
                 .anyRequest().authenticated()
             )

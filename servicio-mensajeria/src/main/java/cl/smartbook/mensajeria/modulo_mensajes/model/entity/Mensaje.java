@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "mensajes")
@@ -36,6 +37,10 @@ public class Mensaje {
     @Column(nullable = false)
     @Builder.Default
     private Boolean leido = false;
+
+    /** Correlaciona las N copias de una difusión (null = mensaje 1-a-1). */
+    @Column(name = "lote_difusion")
+    private UUID loteDifusion;
 
     @PrePersist
     protected void onCreate() {

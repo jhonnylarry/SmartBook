@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -111,7 +112,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        String body = "{\"error\":\"" + mensaje + "\",\"status\":401}";
+        String path = exchange.getRequest().getPath().value();
+        String timestamp = Instant.now().toString();
+        String body = String.format(
+                "{\"timestamp\":\"%s\",\"status\":401,\"code\":\"UNAUTHORIZED\",\"message\":\"%s\",\"path\":\"%s\"}",
+                timestamp, mensaje, path);
         DataBuffer buffer = response.bufferFactory()
                 .wrap(body.getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer));

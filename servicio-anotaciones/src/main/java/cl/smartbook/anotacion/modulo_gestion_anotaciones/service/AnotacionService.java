@@ -45,6 +45,20 @@ public class AnotacionService {
                 .stream().map(this::toDTO).toList();
     }
 
+    /** Anotaciones del estudiante autenticado: idEstudiante resuelto desde el JWT (sin id en la ruta → sin IDOR). */
+    @Transactional(readOnly = true)
+    public List<AnotacionDTO> listarMias(String authHeader) {
+        Long idEstudiante = estudianteClient.obtenerMiEstudiante(authHeader).id();
+        return listarPorEstudiante(idEstudiante);
+    }
+
+    /** Anotaciones de un hijo del apoderado autenticado: solo si gestion-estudiante confirma el vínculo (anti-IDOR). */
+    @Transactional(readOnly = true)
+    public List<AnotacionDTO> listarDeHijo(Long idEstudiante, String authHeader) {
+        estudianteClient.verificarApoderadoDe(idEstudiante, authHeader);
+        return listarPorEstudiante(idEstudiante);
+    }
+
     @Transactional
     public AnotacionDTO crear(AgregarAnotacion req, String authHeader) {
         estudianteClient.verificarEstudianteExiste(req.getIdEstudiante(), authHeader);

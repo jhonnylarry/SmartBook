@@ -4,62 +4,42 @@ import { authGuard } from './core/auth/auth.guard';
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./features/login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
-    path: 'register',
-    loadComponent: () =>
-      import('./features/register/register.component').then(m => m.RegisterComponent)
+    path: 'director',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/director/director.routes').then((m) => m.DIRECTOR_ROUTES),
+  },
+  {
+    path: 'docente',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/docente/docente.routes').then((m) => m.DOCENTE_ROUTES),
+  },
+  {
+    path: 'estudiante',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/estudiante/estudiante.routes').then((m) => m.ESTUDIANTE_ROUTES),
+  },
+  {
+    path: 'administrativo',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/administrativo/administrativo.routes').then((m) => m.ADMINISTRATIVO_ROUTES),
+  },
+  {
+    path: 'apoderado',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/apoderado/apoderado.routes').then((m) => m.APODERADO_ROUTES),
   },
   {
     path: '',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./shared/layout/main-layout.component').then(m => m.MainLayoutComponent),
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
-      },
-      {
-        path: 'estudiantes',
-        loadChildren: () =>
-          import('./features/estudiantes/estudiantes.routes').then(m => m.routes)
-      },
-      {
-        path: 'anotaciones',
-        loadComponent: () =>
-          import('./features/anotaciones/anotacion-list.component').then(m => m.AnotacionListComponent)
-      },
-      {
-        path: 'notas',
-        loadComponent: () =>
-          import('./features/notas/nota-list.component').then(m => m.NotaListComponent)
-      },
-      {
-        path: 'mensajes',
-        loadComponent: () =>
-          import('./features/mensajes/mensaje-list.component').then(m => m.MensajeListComponent)
-      },
-      {
-        path: 'calendario',
-        loadComponent: () =>
-          import('./features/calendario/evento-list.component').then(m => m.EventoListComponent)
-      },
-      {
-        path: 'reportes',
-        loadComponent: () =>
-          import('./features/reportes/reporte-view.component').then(m => m.ReporteViewComponent)
-      },
-      {
-        path: 'hojas-vida',
-        loadComponent: () =>
-          import('./features/hojas-vida/hojas-vida-list.component').then(m => m.HojasVidaListComponent)
-      }
-    ]
+    redirectTo: '/director',
+    pathMatch: 'full',
   },
-  { path: '**', redirectTo: '' }
+  {
+    path: '**',
+    redirectTo: '/login',
+  },
 ];

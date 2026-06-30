@@ -33,7 +33,7 @@ public class AntecedenteFamiliarController {
     private final AntecedenteFamiliarService service;
 
     @Operation(summary = "Listar todos los antecedentes familiares")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR')")
     @GetMapping
     public ResponseEntity<List<AntecedenteFamiliarDTO>> listar() {
         return ResponseEntity.ok(service.listar());
@@ -41,14 +41,17 @@ public class AntecedenteFamiliarController {
 
     @Operation(summary = "Obtener antecedente familiar por ID")
     @ApiResponse(responseCode = "404", description = "No encontrado")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR')")
     @GetMapping("/{id}")
     public ResponseEntity<AntecedenteFamiliarDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
+    // DOCENTE NO accede directo a datos familiares/contactos de menores: lo hace via el agregador
+    // de perfil (anotacion), que valida que el alumno sea de su curso. El agregador lee con
+    // X-Internal-Token (ROLE_SERVICIO_INTERNO). Evita IDOR directo enumerando idHojaVida.
     @Operation(summary = "Listar antecedentes familiares por hoja de vida")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'SERVICIO_INTERNO')")
     @GetMapping("/hoja-vida/{idHojaVida}")
     public ResponseEntity<List<AntecedenteFamiliarDTO>> listarPorHojaVida(@PathVariable Long idHojaVida) {
         return ResponseEntity.ok(service.listarPorHojaVida(idHojaVida));

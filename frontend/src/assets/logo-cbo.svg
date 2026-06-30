@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Escudo base -->
+  <path
+    d="M60 8 L104 24 L104 66 C104 88 84 108 60 114 C36 108 16 88 16 66 L16 24 Z"
+    fill="#1e3a8a"
+    stroke="#f59e0b"
+    stroke-width="3"
+  />
+
+  <!-- Franja central dorada -->
+  <rect x="16" y="52" width="88" height="16" fill="#f59e0b" opacity="0.9" />
+
+  <!-- Cuartel superior izquierdo: libro abierto -->
+  <g transform="translate(22, 28)">
+    <rect x="2" y="6" width="14" height="18" rx="1" fill="white" opacity="0.9"/>
+    <rect x="4" y="8" width="5" height="2" rx="0.5" fill="#1e3a8a"/>
+    <rect x="4" y="12" width="5" height="2" rx="0.5" fill="#1e3a8a"/>
+    <rect x="4" y="16" width="5" height="2" rx="0.5" fill="#1e3a8a"/>
+    <line x1="9" y1="6" x2="9" y2="24" stroke="#1e3a8a" stroke-width="1"/>
+    <rect x="9" y="8" width="5" height="2" rx="0.5" fill="#1e3a8a"/>
+    <rect x="9" y="12" width="5" height="2" rx="0.5" fill="#1e3a8a"/>
+    <rect x="9" y="16" width="5" height="2" rx="0.5" fill="#1e3a8a"/>
+  </g>
+
+  <!-- Cuartel superior derecho: estrella -->
+  <g transform="translate(74, 22)">
+    <polygon
+      points="12,2 14.5,9 22,9 16,14 18.5,21 12,16.5 5.5,21 8,14 2,9 9.5,9"
+      fill="#f59e0b"
+    />
+  </g>
+
+  <!-- Cuartel inferior: iniciales CBO -->
+  <text
+    x="60"
+    y="102"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="13"
+    font-weight="bold"
+    fill="white"
+    letter-spacing="1"
+  >CBO</text>
+
+  <!-- Borde inferior del escudo -->
+  <path
+    d="M60 8 L104 24 L104 66 C104 88 84 108 60 114 C36 108 16 88 16 66 L16 24 Z"
+    fill="none"
+    stroke="#f59e0b"
+    stroke-width="2.5"
+    opacity="0.7"
+  />
+</svg>

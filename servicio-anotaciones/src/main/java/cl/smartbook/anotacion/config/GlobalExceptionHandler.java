@@ -6,9 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -113,6 +115,32 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "VALIDATION_ERROR",
                 first,
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleNotReadable(HttpMessageNotReadableException ex,
+                                                       HttpServletRequest request) {
+        log.warn("[anotacion] HttpMessageNotReadable: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "Cuerpo de la petición inválido o malformado",
+                request.getRequestURI()
+        ));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiError> handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+                                                        HttpServletRequest request) {
+        log.warn("[anotacion] MethodArgumentTypeMismatch: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
+                "Parámetro inválido: '" + ex.getName() + "' debe ser numérico",
                 request.getRequestURI()
         ));
     }

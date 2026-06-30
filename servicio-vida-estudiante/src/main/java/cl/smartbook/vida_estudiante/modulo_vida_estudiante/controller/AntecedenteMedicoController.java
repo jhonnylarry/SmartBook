@@ -33,7 +33,7 @@ public class AntecedenteMedicoController {
     private final AntecedenteMedicoService service;
 
     @Operation(summary = "Listar todos los antecedentes medicos")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR')")
     @GetMapping
     public ResponseEntity<List<AntecedenteMedicoDTO>> listar() {
         return ResponseEntity.ok(service.listar());
@@ -41,14 +41,17 @@ public class AntecedenteMedicoController {
 
     @Operation(summary = "Obtener antecedente medico por ID")
     @ApiResponse(responseCode = "404", description = "No encontrado")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR')")
     @GetMapping("/{id}")
     public ResponseEntity<AntecedenteMedicoDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
+    // DOCENTE NO accede directo a datos medicos de menores: lo hace via el agregador de perfil
+    // (anotacion), que valida que el alumno sea de su curso y redacta. El agregador lee con
+    // X-Internal-Token (ROLE_SERVICIO_INTERNO). Evita IDOR directo enumerando idHojaVida.
     @Operation(summary = "Listar antecedentes medicos por hoja de vida")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'DOCENTE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'DIRECTOR', 'INSPECTOR', 'SERVICIO_INTERNO')")
     @GetMapping("/hoja-vida/{idHojaVida}")
     public ResponseEntity<List<AntecedenteMedicoDTO>> listarPorHojaVida(@PathVariable Long idHojaVida) {
         return ResponseEntity.ok(service.listarPorHojaVida(idHojaVida));

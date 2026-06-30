@@ -40,6 +40,22 @@ public class Evento {
     @Column(nullable = false)
     private TipoEvento tipo;
 
+    /** Ámbito/destinatario del evento. Nullable solo por compatibilidad con datos previos al backfill. */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private AmbitoEvento ambito;
+
+    @Column(name = "id_asignatura")
+    private Long idAsignatura;
+
+    /** Curso destino (cuando ambito = CURSO). Referencia simple a gestion-academica (sin FK). */
+    @Column(name = "id_curso")
+    private Long idCurso;
+
+    /** Estudiante destino (cuando ambito = ESTUDIANTE). Id de la ENTIDAD estudiante (no idUsuario). */
+    @Column(name = "id_estudiante")
+    private Long idEstudiante;
+
     @Column(name = "id_creador")
     private Long idCreador;
 

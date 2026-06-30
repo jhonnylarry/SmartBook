@@ -19,6 +19,9 @@ public class WebClientConfig {
     @Value("${smartbook.client.gestion-estudiante.url}")
     private String gestionEstudianteUrl;
 
+    @Value("${smartbook.client.mensajeria.url}")
+    private String mensajeriaUrl;
+
     private HttpClient httpClient() {
         return HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
@@ -37,6 +40,14 @@ public class WebClientConfig {
     public WebClient estudianteWebClient() {
         return WebClient.builder()
                 .baseUrl(gestionEstudianteUrl)
+                .clientConnector(new ReactorClientHttpConnector(httpClient()))
+                .build();
+    }
+
+    @Bean("mensajeriaWebClient")
+    public WebClient mensajeriaWebClient() {
+        return WebClient.builder()
+                .baseUrl(mensajeriaUrl)
                 .clientConnector(new ReactorClientHttpConnector(httpClient()))
                 .build();
     }

@@ -9,13 +9,13 @@ public interface MensajeService {
 
     MensajeDTO enviar(AgregarMensajeRequest request, String authHeader);
 
-    MensajeDTO getById(Long id);
+    MensajeDTO getById(Long id, Long idUsuarioAutenticado);
 
     List<MensajeDTO> listarRecibidos(Long idUsuario);
 
     List<MensajeDTO> listarEnviados(Long idUsuario);
 
-    MensajeDTO marcarLeido(Long id);
+    MensajeDTO marcarLeido(Long id, Long idUsuarioAutenticado);
 
     void eliminar(Long id);
 }
